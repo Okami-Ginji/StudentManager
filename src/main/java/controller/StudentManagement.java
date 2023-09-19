@@ -11,6 +11,7 @@ import model.CourseOfStudent;
 import model.Report;
 import model.Student;
 import view.Menu;
+import Common.Validation;
 
 /**
  *
@@ -32,6 +33,7 @@ public class StudentManagement extends Menu {
         s = new Student();
     }
 
+    @Override
     public void execute(int n) {
         switch (n) {
             case 1:
@@ -61,7 +63,7 @@ public class StudentManagement extends Menu {
             int total = 0;
             int id = cs.getId();
             String courseName = cs.getCourseName();
-            if (checkReport(list_Rp, id, courseName, total)) {
+            if (Validation.checkReport(list_Rp, id, courseName)) {
                 list_Rp.add(new Report(id, courseName, total+1));
             } else {
                 for (Report r : list_Rp) {
@@ -76,17 +78,8 @@ public class StudentManagement extends Menu {
             }
         }
         for (int i = 0; i < list_Rp.size(); i++) {
-            System.out.println("Id:" + list_Rp.get(i).getId() + "  - Course: " + list_Rp.get(i).getCourseName() + " - Total: " + list_Rp.get(i).getTotalCourse());
+            System.out.println("Id:" + list_Rp.get(i).getId() + " - Course: " + list_Rp.get(i).getCourseName() + " - Total: " + list_Rp.get(i).getTotalCourse());
         }
-    }
-
-    public boolean checkReport(ArrayList<Report> list_Rp, int id, String courseName, int total) {
-        for (Report rp : list_Rp) {
-            if (id == rp.getId() && courseName.equalsIgnoreCase(rp.getCourseName()) && total == rp.getTotalCourse()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void createStudent() {
@@ -97,7 +90,10 @@ public class StudentManagement extends Menu {
             list_s.add(new Student(id, name));
         }
         int semester = l.getInt("Enter semester", 1, 10);
-        String courseName = l.getString("Enter courseName: ");
+        String courseName = l.getString("Enter courseName(Java - .Net - C/C++): ");
+        while (!Validation.checkCourseName(courseName.toLowerCase())) {
+            courseName = l.getString("Enter courseName again(Java - .Net - C/C++): ");
+        }
         list_cs.add(new CourseOfStudent(id, semester, courseName));
     }
 
@@ -121,11 +117,17 @@ public class StudentManagement extends Menu {
         if (list_ByName.isEmpty()) {
             System.err.println("Not exist");
         } else {
-            Collections.sort(list_ByName);
-            displayStudent(list_ByName);
+            ArrayList<Student> temp = sortByName(list_s);
+            displayStudent(temp);
         }
     }
-
+    
+    public ArrayList<Student> sortByName(ArrayList<Student> list_s) {    
+        ArrayList<Student> temp = list_s;
+        Collections.sort(temp, (Student student1, Student student2) -> student1.getName().compareTo(student2.getName()));
+        return temp;
+    }
+    
     public ArrayList<Student> listByName(ArrayList<Student> list_s) {
         ArrayList<Student> list_Found = new ArrayList<Student>();
         String name = l.getString("Enter name to search: ");

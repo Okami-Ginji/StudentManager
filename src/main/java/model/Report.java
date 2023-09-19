@@ -9,7 +9,7 @@ package model;
  * @author PC
  */
 public class Report {
-      private int id;
+    private int id;
     private String courseName;
     private int totalCourse;
 
